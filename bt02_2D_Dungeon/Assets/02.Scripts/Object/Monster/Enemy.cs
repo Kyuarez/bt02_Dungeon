@@ -72,7 +72,7 @@ public class Enemy : MonoBehaviour
             {
                 currentAnim = animList[1];
             }
-            else if (angle > 135.0f && angle <= -45.0f)
+            else if (angle > -135.0f && angle <= -45.0f)
             {
                 currentAnim = animList[0];
             }
@@ -131,11 +131,8 @@ public class Enemy : MonoBehaviour
         if (true == collision.gameObject.CompareTag("Arrow"))
         {
             hp--;
-            Destroy(collision.gameObject, 0.25f);
-
             if (hp <= 0)
             {
-
                 rigid.linearVelocity = Vector2.zero;
                 currentAnim = animList[4];
                 Destroy(gameObject, 0.5f);
