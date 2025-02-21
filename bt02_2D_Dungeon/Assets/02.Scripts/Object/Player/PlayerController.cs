@@ -4,7 +4,10 @@ using UnityEngine;
 [RequireComponent(typeof(Animator), typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    public static int hp = 3;
+
     public float speed = 3.0f;
+
     public List<string> animList = new List<string> 
     {
         "anim_player_down",
