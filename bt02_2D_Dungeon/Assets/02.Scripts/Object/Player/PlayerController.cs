@@ -16,18 +16,22 @@ public class PlayerController : MonoBehaviour
         "anim_player_right",
         "anim_player_dead",
     };
-    
+
+    private SpriteRenderer spr;
+
     private Animator anim;
     string currentAnim = string.Empty;
     string previousAnim = string.Empty;
 
 
+    private CircleCollider2D col;
     private Rigidbody2D rigid;      
     float axisH;
     float axisV;
     float rotateAngle = -90.0f; //È¸Àü°¢
 
     bool isMove = false;
+    bool isDamage = false;
 
     public float RotateAngle
     {
@@ -40,6 +44,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        spr = GetComponent<SpriteRenderer>();
+        col = GetComponent<CircleCollider2D>();
         anim = GetComponent<Animator>();
         rigid = GetComponent<Rigidbody2D>();
         previousAnim = animList[0];
@@ -47,6 +53,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if(isDamage == true)
+        {
+            return;
+        }
+
         if (false == isMove)
         {
             axisH = Input.GetAxisRaw("Horizontal");
@@ -64,6 +75,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDamage == true)
+        {
+            return;
+        }
+
         rigid.linearVelocity = new Vector2(axisH, axisV) * speed;
     }
 
@@ -95,4 +111,49 @@ public class PlayerController : MonoBehaviour
             currentAnim = animList[2];
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (true == collision.gameObject.CompareTag("Enemy"))
+        {
+            GetDamage(collision.gameObject);
+        }
+    }
+
+    private void GetDamage(GameObject enemy)
+    {
+        hp--;
+
+        if(hp > 0)
+        {
+            rigid.linearVelocity = Vector2.zero;
+            Vector2 reboundDirection = (transform.position - enemy.transform.position).normalized;
+            rigid.AddForce(reboundDirection * 4, ForceMode2D.Impulse);
+
+            isDamage = true;
+            Invoke("OnDamageExit", 0.25f);
+        }
+        else
+        {
+            OnDead();
+        }
+    }
+
+    private void OnDamageExit()
+    {
+        isDamage = false;
+        spr.enabled = true;
+    }
+
+    private void OnDead()
+    {
+        currentAnim = animList[4];
+        col.enabled = false;
+        rigid.linearVelocity = Vector2.zero;
+        rigid.gravityScale = 1f;
+        rigid.AddForce(new Vector2(0, 5), ForceMode2D.Impulse);
+        gameObject.SetActive(false);
+    }
+
+
 }
